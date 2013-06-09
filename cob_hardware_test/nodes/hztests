@@ -18,6 +18,18 @@ NAME = 'hztest'
 from threading import Thread
 
 #run tests in one test with all results in a list
+#!/usr/bin/env python
+
+# modified from http://bit.ly/dEyw03
+import rospy
+import rostest
+import time
+import rosunit
+import sys
+
+NAME = 'hztest'
+import unittest
+
 
 class Result:    
     def __init__(self, test_name, topic):
@@ -41,87 +53,70 @@ class HzTest(unittest.TestCase):
     def __init__(self, *args):
         super(HzTest, self).__init__(*args)
         rospy.init_node(NAME)
-        self.maxDiff = None
+        #self.maxDiff = None
         self.lock = threading.Lock()
+    pass
     def setUp(self):
         self.verificationErrors = []
         
     def tearDown(self):
         self.assertEqual([], self.verificationErrors)       
                
-    ## performs two tests of a node, first with /rostime off, then with /rostime on
+    def callback(self, msg, result):
+        # flag that message has been received
+        result.message_received = True         
+        try:
+            #self.lock.acquire()
+            self.wall_clock = False
+            if self.wall_clock:
+                curr = time.time()
+            else:
+                curr_rostime = rospy.get_rostime()
 
-    def test_hz(self):
-        # Fetch parameters
-        cob_hardware_test = rospy.get_param('cob_hardware_test')   
-        threads = []
-        #start threads in loop
-        for k, i in cob_hardware_test.iteritems():
-            #self.lock = threading.Lock()
-            
-            #Reset for each cycle:
-            self.message_received = False
-            
-            test_name = k
-            hz = i.get('hz')
-            hzerror = i.get('hzerror')
-            topic = i.get('topic')
-            test_duration = i.get('test_duration')
-            wait_time = i.get('wait_time')
-            
-            self.assert_(len(test_name), "bad parameter (test_name)")
-            self.assert_(len(topic), "bad parameter (topic)")
-            self.assert_(hz >= 0.0, "bad parameter (hz)")
-            self.assert_(hzerror >= 0.0, "bad parameter (hzerror)")
-            self.assert_(test_duration > 0.0, "bad parameter (test_duration)")
-            self.assert_(wait_time > 0.0, "bad parameter (wait_time)")
-            
-        
-            # We only require hzerror if hz is non-zero
-            hzerror = 0.0
-            
-            if hz != 0.0:
-                try:
-                    # margin of error allowed
-                    #hzerror = float(rospy.get_param('~hzerror'))
-                    hzerror = float(i.get('hzerror'))
-                except KeyError, e:
-                    self.fail('hztest not initialized properly. Parameter [%s] not set. debug[%s] debug[%s]'%(str(e), rospy.get_caller_id(), rospy.resolve_name(e.args[0])))
+                #print "CURR ROSTIME", curr_rostime.to_sec()
+                
+                if curr_rostime.is_zero():
+                    return
+                curr = curr_rostime.to_sec()
+ 
+            if result.msg_t0 <= 0.0 or result.msg_t0 > curr:
+                result.msg_t0 = curr
+                result.msg_count = 1
+                last = 0
+            else:
+                result.msg_count += 1
+                last = result.msg_tn
 
-            # We optionally check each inter-message interval
-            try:
-                self.check_intervals = bool(rospy.get_param('~check_intervals'))
-            except KeyError, e:
-                self.check_intervals = False
+            result.msg_tn = curr
 
-            # We optionally measure wall clock time
-            try:
-                self.wall_clock = bool(rospy.get_param('~wall_clock'))
-            except KeyError, e:
-                self.wall_clock = False
+            # If we're instructed to check each inter-message interval, do
+            self.check_intervals = False
+            # so
+            if self.check_intervals and last > 0:
+                interval = curr - last
+                if interval < result.min_interval:
+                    print >> sys.stderr, "CURR", curr
+                    print >> sys.stderr, "LAST", last
+                    print >> sys.stderr, "msg_count", result.msg_count
+                    print >> sys.stderr, "msg_tn", result.msg_tn
+                    result.errors.append(
+                        'min_interval exceeded: %s [actual] vs. %s [min]'%\
+                        (interval, result.min_interval))
+                # If max_interval is <= 0.0, then we have no max
+                elif result.max_interval > 0.0 and interval > result.max_interval:
+                    result.errors.append(
+                        'max_interval exceeded: %s [actual] vs. %s [max]'%\
+                        (interval, result.max_interval))
 
-            print """%s
-    Topic: %s
-    Hz: %s
-    HzError: %s    
-    duration: %s
-    wait time: %s"""%(test_name, topic, hz, hzerror, test_duration, wait_time)
+        finally:
+            #self.lock.release() 
+            pass   
             
-
-            #self._test_hz(hz, hzerror, topic, test_duration, wait_time)
-            #t = threading.Thread(self._test_hz(hz, hzerror, topic, test_duration, wait_time))
-            t = Thread(target=self._test_hz, args=(test_name, topic, hz, hzerror, test_duration, wait_time))
-            threads.append(t)
-            t.start()
-        
-        #Wait for all tests to finish
-        for t in threads:
-            t.join()        
-                       
-        print 'THREADS: %s ERRORS: %s' % (len(threads), len(self.verificationErrors))         
-                 
-        
-    def _test_hz(self, test_name, topic, hz, hzerror, test_duration, wait_time):
+#modified from https://gist.github.com/brantfaircloth/764363            
+def create_dynamic_method(test_name, topic, hz, hzerror, test_duration, wait_time):
+    """just don't include `test` in the function name here, nose will try to
+    run it"""
+    def dynamic_test_method(self):
     
         result = Result(test_name, topic)
         
@@ -230,56 +225,36 @@ class HzTest(unittest.TestCase):
                 if not current_test_failed:
                     self.verificationErrors.append('Name: %s Topic: %s Error: %s'%(test_name, topic, str(e)))
                     current_test_failed = True
-
+    return dynamic_test_method
+    
         
-    def callback(self, msg, result):
-        # flag that message has been received
-        result.message_received = True         
-        try:
-            self.lock.acquire()
+    # Fetch parameters
+cob_hardware_test = rospy.get_param('cob_hardware_test')   
+threads = []
+#start threads in loop
+for k, i in cob_hardware_test.iteritems():
+    #self.lock = threading.Lock()
+    
+    #Reset for each cycle:
+    #result.message_received = False
+    
+    test_name = k
+    hz = i.get('hz')
+    hzerror = i.get('hzerror')
+    topic = i.get('topic')
+    test_duration = i.get('test_duration')
+    wait_time = i.get('wait_time')
+    
+    dynamic_method = create_dynamic_method(test_name, topic, hz, hzerror, test_duration, wait_time)
+    dynamic_method.__name__ = 'test_{0}'.format(k)
+    dynamic_method.__doc__ = 'my super great name {0}'.format(k)
+    setattr(HzTest, dynamic_method.__name__, dynamic_method)
+    # remove the last test name from the current namespace, 
+    # so nose doesn't run it
+del dynamic_method
+    
 
-            if self.wall_clock:
-                curr = time.time()
-            else:
-                curr_rostime = rospy.get_rostime()
 
-                #print "CURR ROSTIME", curr_rostime.to_sec()
-                
-                if curr_rostime.is_zero():
-                    return
-                curr = curr_rostime.to_sec()
- 
-            if result.msg_t0 <= 0.0 or result.msg_t0 > curr:
-                result.msg_t0 = curr
-                result.msg_count = 1
-                last = 0
-            else:
-                result.msg_count += 1
-                last = result.msg_tn
-
-            result.msg_tn = curr
-
-            # If we're instructed to check each inter-message interval, do
-            # so
-            if self.check_intervals and last > 0:
-                interval = curr - last
-                if interval < result.min_interval:
-                    print >> sys.stderr, "CURR", curr
-                    print >> sys.stderr, "LAST", last
-                    print >> sys.stderr, "msg_count", result.msg_count
-                    print >> sys.stderr, "msg_tn", result.msg_tn
-                    result.errors.append(
-                        'min_interval exceeded: %s [actual] vs. %s [min]'%\
-                        (interval, result.min_interval))
-                # If max_interval is <= 0.0, then we have no max
-                elif result.max_interval > 0.0 and interval > result.max_interval:
-                    result.errors.append(
-                        'max_interval exceeded: %s [actual] vs. %s [max]'%\
-                        (interval, result.max_interval))
-
-        finally:
-            self.lock.release()    
-            pass
             
         
 if __name__ == '__main__':

@@ -6,51 +6,65 @@ import sys
 import rospy
 import wx
 from cob_hardware_test.srv import *
+#from PyQt4 import QtGui, QtCore
+from python_qt_binding import *
+from python_qt_binding.QtGui import *
 
-def handle_dialog(req):
-    if req.type == 1:
-            print "Asking: %s" % (req.message)
-            ex = wx.App()
-            dial = wx.MessageDialog(None, req.message, 'Question',
-                            wx.YES_NO | wx.ICON_QUESTION)
-            ret = dial.ShowModal()
-            if ret == wx.ID_YES:
-                    answer = True
-            else:
-                    answer = False
-
-        #TODO exit properly
-        #self.Destroy()
-        #ex.Destroy()        
-        #dial.Destroy()
-            return DialogResponse(answer)
-
-    if req.type == 0:
-            print "Confirm: %s" % (req.message)
-            ex = wx.App()
-            dial = wx.MessageDialog(None, req.message, 'Confirm',
-                            wx.OK | wx.ICON_WARNING)
-            ret = dial.ShowModal()
-            if ret == wx.ID_OK:
-                    answer = True
-            else:
-                    answer = False
-
-        #TODO exit properly
-        #self.Destroy()
-        #ex.Destroy()        
-        #dial.Destroy()
-            return DialogResponse(answer)
-    
-
-
-def dialog_server():
+class MessageBox(QtGui.QWidget):
+ 
+    def __init__ (self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+ 
+        self.setGeometry(300, 300, 250, 150)
+        self.setWindowTitle('Message Box')
         rospy.init_node('dialog_server')
-        s = rospy.Service('dialog', Dialog, handle_dialog)
+        s = rospy.Service('dialog', Dialog, self.handle_dialog)
         print "Ready to ask(1) or confirm(0)!"
         rospy.spin()
+        
+ 
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self,  'Message',  'Are you sure to quit?',  QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+ 
+        if reply == QtGui.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+            
+    def handle_dialog(self, req):
+        if req.type == 1:
+                print "Asking: %s" % (req.message)
+                reply = QtGui.QMessageBox.question(self,  'Message',  'Are you sure to quit?',  QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                if reply == QtGui.QMessageBox.Yes:
+                        answer = True
+                else:
+                        answer = False
 
+                return DialogResponse(answer)
+    
+        if req.type == 0:
+                print "Confirm: %s" % (req.message)
+                ex = wx.App()
+                dial = wx.MessageDialog(None, req.message, 'Confirm',
+                                wx.OK | wx.ICON_WARNING)
+                ret = dial.ShowModal()
+                if ret == wx.ID_OK:
+                        answer = True
+                else:
+                        answer = False
+    
+            #TODO exit properly
+            #self.Destroy()
+            #ex.Destroy()        
+            #dial.Destroy()
+                return DialogResponse(answer)
 
 
 if __name__ == "__main__":
-      dialog_server()
+    #dialog_server()
+    app = QtGui.QApplication(sys.argv)
+    qb = MessageBox()
+    qb.show()
+
+    sys.exit(app.exec_())
+

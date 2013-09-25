@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /DepthCloud1
+        - /RobotModel1
       Splitter Ratio: 0.5
     Tree Height: 565
   - Class: rviz/Selection
@@ -90,6 +92,11 @@ Visualization Manager:
       Collision Enabled: false
       Enabled: true
       Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
         arm_0_link:
           Alpha: 1
           Show Axes: false
@@ -130,6 +137,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         base_laser_front_link:
           Alpha: 1
           Show Axes: false
@@ -140,6 +151,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        base_laser_top_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         base_link:
           Alpha: 1
           Show Axes: false
@@ -190,16 +205,28 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        head_cam3d_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         head_cam3d_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        head_color_camera_l_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         head_color_camera_l_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        head_color_camera_r_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         head_color_camera_r_link:
           Alpha: 1
           Show Axes: false
@@ -240,6 +267,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        sdh_grasp_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         sdh_palm_link:
           Alpha: 1
           Show Axes: false
@@ -260,21 +291,57 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        sdh_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         torso_lower_neck_tilt_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        torso_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         torso_upper_neck_tilt_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        tray_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tray_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         tray_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
+        tray_phidgets_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tray_phidgets_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tray_phidgets_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tray_phidgets_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tray_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -304,30 +371,18 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.397234
+      Distance: 1.6391
       Focal Point:
-        X: -0.177421
-        Y: -0.917754
-        Z: 1.47576
+        X: -0.56338
+        Y: 0.104496
+        Z: 0.759604
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.283686
+      Pitch: 0.790398
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: -1.15889
-    Saved:
-      - Class: rviz/Orbit
-        Distance: 0.397234
-        Focal Point:
-          X: -0.177421
-          Y: -0.917754
-          Z: 1.47576
-        Name: Orbit
-        Near Clip Distance: 0.01
-        Pitch: 0.283686
-        Target Frame: <Fixed Frame>
-        Value: Orbit (rviz)
-        Yaw: -1.15889
+      Yaw: 5.44858
+    Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
@@ -344,5 +399,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 2381
-  Y: 129
+  X: 58
+  Y: 60

@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
+macro(rosbuild_add_rostest_sim file)
+  string(REPLACE "/" "_" _testname ${file})
+  _rosbuild_add_rostest(${file})
+  # Redeclaration of target is to workaround bug in 2.4.6
+  if(CMAKE_MINOR_VERSION LESS 6)
+    add_custom_target(test)
+  endif(CMAKE_MINOR_VERSION LESS 6)
+  add_dependencies(test rostest_${_testname} )
+  _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
+endmacro(rosbuild_add_rostest_sim)	
+
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
 #  Debug          : w/ debug symbols, w/o optimization
@@ -27,23 +38,27 @@ cob3-1
 cob3-2
 cob3-3
 cob3-4
-cob3-5
-cob3-6
-cob3-7
-raw3-1
-raw3-2
-raw3-3
-raw3-4
-raw3-5
-raw3-6
-desire
+#cob3-5
+#cob3-6
+#cob3-7
+#raw3-1
+#raw3-2
+#raw3-3
+#raw3-4
+#raw3-5
+#raw3-6
+#desire
 )
+
+
 
 # loop through list of robots for testing
 FOREACH(robot ${robotlist})
 	MESSAGE("testing for robot: ${robot}")
-	rosbuild_add_roslaunch_check(robots/${robot}_manual.test.xml robot:=${robot})
-	rosbuild_add_roslaunch_check(robots/${robot}_auto.test.xml robot:=${robot})
-	rosbuild_add_roslaunch_check(robots/${robot}_manual.test.xml ROBOT=${robot})
-	rosbuild_add_roslaunch_check(robots/${robot}_auto.test.xml ROBOT=${robot})
+#	rosbuild_add_roslaunch_check(robots/${robot}_manual.test.xml robot:=${robot})
+#	rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
+#	rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
+#	rosbuild_add_rostest_sim(components/laser_front.test ROBOT=${robot})
+	rosbuild_add_rostest(robots/robot_auto_sim.test ROBOT=${robot} ROBOT_ENV=ipa-apartment)
+# see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake 
 ENDFOREACH(robot)

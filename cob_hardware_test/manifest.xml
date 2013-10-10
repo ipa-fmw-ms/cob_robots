@@ -14,5 +14,6 @@
   <depend package="cob_default_robot_config"/>
   <depend package="audio_common_msgs" /> <!-- audio_common -->
   <depend package="cob_teleop" />
+  <depend package="cob_bringup_sim" /> <!-- wifi_ddwrt -->
 
 </package>

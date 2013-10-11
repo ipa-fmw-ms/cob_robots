@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-macro(rosbuild_add_rostest_sim file robot)
-  string(REPLACE "/" "_" _testname ${robot})
-  _rosbuild_add_rostest(${file} ${robot})
+macro(rosbuild_add_rostest_arg file robotarg)
+  string(REPLACE "/" "_" _testname ${robotarg})
+  _rosbuild_add_rostest(${file} ${robotarg})
   # Redeclaration of target is to workaround bug in 2.4.6
   if(CMAKE_MINOR_VERSION LESS 6)
     add_custom_target(test)
   endif(CMAKE_MINOR_VERSION LESS 6)
   add_dependencies(test rostest_${_testname})
   _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
-endmacro(rosbuild_add_rostest_sim)	
+endmacro(rosbuild_add_rostest_arg)	
 
-macro(_rosbuild_add_rostest file robot)
+macro(_rosbuild_add_rostest_arg file robotarg)
 
 # Check that the file exists, #1621
 set(_file_name _file_name-NOTFOUND)
@@ -22,11 +22,11 @@ message(FATAL_ERROR "Can't find rostest file \"${file}\"")
   endif(NOT _file_name)
 
   # Create a legal target name, in case the target name has slashes in it
-  string(REPLACE "/" "_" _testname ${robot}${file})
+  string(REPLACE "/" "_" _testname ${robotarg}${file})
 
   # Create target for this test
   add_custom_target(rostest_${_testname}
-                    COMMAND ${ARGN} rostest ${file} ROBOT:=${robot}
+                    COMMAND ${ARGN} rostest ${file} ${robotarg}
                     DEPENDS ${file}
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     VERBATIM)
@@ -45,7 +45,7 @@ message(FATAL_ERROR "Can't find rostest file \"${file}\"")
   # rosbuild_add_rostest()
   # and rosbuild_add_rostest_future() instead.
   #_rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
-endmacro(_rosbuild_add_rostest)
+endmacro(_rosbuild_add_rostest_arg)
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
@@ -73,16 +73,16 @@ cob3-1
 cob3-2
 cob3-3
 cob3-4
-#cob3-5
-#cob3-6
-#cob3-7
-#raw3-1
-#raw3-2
-#raw3-3
-#raw3-4
-#raw3-5
-#raw3-6
-#desire
+cob3-5
+cob3-6
+cob3-7
+raw3-1
+raw3-2
+raw3-3
+raw3-4
+raw3-5
+raw3-6
+desire
 )
 
 
@@ -94,7 +94,7 @@ FOREACH(robot ${robotlist})
 #	rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
 #	rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
 #	rosbuild_add_rostest_sim(components/laser_front.test ${robot})
-	rosbuild_add_rostest_sim(robots/robot_auto_sim.test ${robot})
-	rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})
+#	rosbuild_add_rostest_arg(robots/robot_auto_sim.test robot=${robot})
+	rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
 # see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake 
 ENDFOREACH(robot)

@@ -1,50 +1,56 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-macro(rosbuild_add_rostest_arg file robot)
+macro(rosbuild_add_rostest_env file robot)
   string(REPLACE "/" "_" _testname ${robot})
-  _rosbuild_add_rostest_arg(${file} ${robot})
-  # Redeclaration of target is to workaround bug in 2.4.6
+  _rosbuild_add_rostest_env(${file} ${robot})
   if(CMAKE_MINOR_VERSION LESS 6)
     add_custom_target(test)
   endif(CMAKE_MINOR_VERSION LESS 6)
   add_dependencies(test rostest_${_testname})
   _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
-endmacro(rosbuild_add_rostest_arg)	
-
-macro(_rosbuild_add_rostest_arg file robot)
-
-# Check that the file exists, #1621
+endmacro(rosbuild_add_rostest_env)
+macro(_rosbuild_add_rostest_env file robot)
 set(_file_name _file_name-NOTFOUND)
 find_file(_file_name ${file} ${PROJECT_SOURCE_DIR} /)
 if(NOT _file_name)
 message(FATAL_ERROR "Can't find rostest file \"${file}\"")
   endif(NOT _file_name)
-
-  # Create a legal target name, in case the target name has slashes in it
-  string(REPLACE "/" "_" _testname ${robot}${file})
-
-  # Create target for this test
+  string(REPLACE "/" "_" _testname ${robot}ENV${file})
   add_custom_target(rostest_${_testname}
                     COMMAND export ROBOT=${robot} && ${ARGN} rostest ${file}
                     DEPENDS ${file}
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     VERBATIM)
-
-  # Make sure all test programs are built before running this test
-  # but not if rosbuild_test_nobuild is set, #3008
   if(NOT rosbuild_test_nobuild)
     add_dependencies(rostest_${_testname} tests)
   endif(NOT rosbuild_test_nobuild)
+endmacro(_rosbuild_add_rostest_env)
 
-  # rostest-check-results will do the magic of fixing an incorrect file extension
-  # Don't register to check rostest output here, because we may have gotten
-  # here through registration of a future test. Eventually, we should pass
-  # in the overriding target (e.g., test-results vs. test-future-results).
-  # For now, we call _rosbuild_check_rostest_xml_result() in
-  # rosbuild_add_rostest()
-  # and rosbuild_add_rostest_future() instead.
-  #_rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
+macro(rosbuild_add_rostest_arg file robot)
+  string(REPLACE "/" "_" _testname ${robot})
+  _rosbuild_add_rostest_arg(${file} ${robot})
+  if(CMAKE_MINOR_VERSION LESS 6)
+    add_custom_target(test)
+  endif(CMAKE_MINOR_VERSION LESS 6)
+  add_dependencies(test rostest_${_testname})
+  _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
+endmacro(rosbuild_add_rostest_arg)
+macro(_rosbuild_add_rostest_arg file robot)
+set(_file_name _file_name-NOTFOUND)
+find_file(_file_name ${file} ${PROJECT_SOURCE_DIR} /)
+if(NOT _file_name)
+message(FATAL_ERROR "Can't find rostest file \"${file}\"")
+  endif(NOT _file_name)
+  string(REPLACE "/" "_" _testname ${robot}ARG${file})
+  add_custom_target(rostest_${_testname}
+                    COMMAND ${ARGN} rostest ${file} ROBOT:=${robot}
+                    DEPENDS ${file}
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                    VERBATIM)
+  if(NOT rosbuild_test_nobuild)
+    add_dependencies(rostest_${_testname} tests)
+  endif(NOT rosbuild_test_nobuild)
 endmacro(_rosbuild_add_rostest_arg)
 
 # Set the build type. Options are:
@@ -69,20 +75,20 @@ rosbuild_gensrv()
 
 # rostest for robots
 SET(robotlist
-#cob3-1
-#cob3-2
-#cob3-3
-#cob3-4
-#cob3-5
-#cob3-6
-#cob3-7
+cob3-1
+cob3-2
+cob3-3
+cob3-4
+cob3-5
+cob3-6
+cob3-7
 raw3-1
-#raw3-2
-#raw3-3
-#raw3-4
-#raw3-5
-#raw3-6
-#desire
+raw3-2
+raw3-3
+raw3-4
+raw3-5
+raw3-6
+desire
 )
 
 
@@ -95,6 +101,7 @@ MESSAGE("testing for robot: ${robot}")
 # rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
 # rosbuild_add_rostest_sim(components/laser_front.test ${robot})
 rosbuild_add_rostest_arg(robots/robot_auto_sim.test ${robot})
+rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
 #rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})
 # see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake
 ENDFOREACH(robot)

@@ -65,7 +65,7 @@ macro(_rosbuild_add_rostest_arg file)
   #MESSAGE("sub_testname: ${_testname}")
   # Create target for this test
   add_custom_target(rostest_${_testname}
-                    COMMAND rostest ${file} ${ARGN}
+                    COMMAND export ROBOT_ENV=ipa-kitchen && rostest ${file} ${ARGN}
                     DEPENDS ${file}
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     VERBATIM)
@@ -133,7 +133,7 @@ MESSAGE("testing for robot: ${robot}")
 # rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
 # rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
 # rosbuild_add_rostest_sim(components/laser_front.test ${robot})
-rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
+rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot} )
 #rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
 #rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
 #rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})

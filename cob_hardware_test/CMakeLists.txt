@@ -27,30 +27,63 @@ message(FATAL_ERROR "Can't find rostest file \"${file}\"")
   endif(NOT rosbuild_test_nobuild)
 endmacro(_rosbuild_add_rostest_env)
 
-macro(rosbuild_add_rostest_arg file robot)
-  string(REPLACE "/" "_" _testname ${robot})
-  _rosbuild_add_rostest_arg(${file} ${robot})
+
+
+macro(rosbuild_add_rostest_arg file)
+
+  string(REPLACE "/" "_" _testname "${file}${ARGN}")
+  string(REPLACE "=" "_" _testname "${_testname}")
+  string(REPLACE ":" "_" _testname "${_testname}")
+  #set(_testname "${_testname}${ARGN}")
+  #string(REPLACE "/" "_" _testname ${file})
+  #MESSAGE("_testnamefirst: ${_testname}")
+  _rosbuild_add_rostest_arg(${file} ${ARGN})
+  # Redeclaration of target is to workaround bug in 2.4.6
   if(CMAKE_MINOR_VERSION LESS 6)
     add_custom_target(test)
   endif(CMAKE_MINOR_VERSION LESS 6)
+  #MESSAGE("_testname2nd: ${_testname}")
   add_dependencies(test rostest_${_testname})
   _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
 endmacro(rosbuild_add_rostest_arg)
-macro(_rosbuild_add_rostest_arg file robot)
-set(_file_name _file_name-NOTFOUND)
-find_file(_file_name ${file} ${PROJECT_SOURCE_DIR} /)
-if(NOT _file_name)
-message(FATAL_ERROR "Can't find rostest file \"${file}\"")
+
+
+macro(_rosbuild_add_rostest_arg file)
+
+  # Check that the file exists, #1621
+  set(_file_name _file_name-NOTFOUND)
+  find_file(_file_name ${file} ${PROJECT_SOURCE_DIR} /)
+  if(NOT _file_name)
+    message(FATAL_ERROR "Can't find rostest file \"${file}\"")
   endif(NOT _file_name)
-  string(REPLACE "/" "_" _testname ${robot}ARG${file})
+
+  # Create a legal target name, in case the target name has slashes in it
+  string(REPLACE "/" "_" _testname "${file}${ARGN}")
+  string(REPLACE "=" "_" _testname "${_testname}")
+  string(REPLACE ":" "_" _testname "${_testname}")
+  #set(_testname "${_testname}${ARGN}")
+  #MESSAGE("sub_testname: ${_testname}")
+  # Create target for this test
   add_custom_target(rostest_${_testname}
-                    COMMAND ${ARGN} rostest ${file} ROBOT:=${robot}
+                    COMMAND rostest ${file} ${ARGN}
                     DEPENDS ${file}
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     VERBATIM)
+
+  # Make sure all test programs are built before running this test
+  # but not if rosbuild_test_nobuild is set, #3008
   if(NOT rosbuild_test_nobuild)
     add_dependencies(rostest_${_testname} tests)
   endif(NOT rosbuild_test_nobuild)
+
+  # rostest-check-results will do the magic of fixing an incorrect file extension
+  # Don't register to check rostest output here, because we may have gotten
+  # here through registration of a future test.  Eventually, we should pass
+  # in the overriding target (e.g., test-results vs. test-future-results).
+  # For now, we call _rosbuild_check_rostest_xml_result() in
+  # rosbuild_add_rostest()
+  # and rosbuild_add_rostest_future() instead.
+  #_rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
 endmacro(_rosbuild_add_rostest_arg)
 
 # Set the build type. Options are:
@@ -100,8 +133,9 @@ MESSAGE("testing for robot: ${robot}")
 # rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
 # rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
 # rosbuild_add_rostest_sim(components/laser_front.test ${robot})
-rosbuild_add_rostest_arg(robots/robot_auto_sim.test ${robot})
-rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
+rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
+#rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
+#rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
 #rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})
 # see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake
 ENDFOREACH(robot)

@@ -1,38 +1,12 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-macro(rosbuild_add_rostest_env file robot)
-  string(REPLACE "/" "_" _testname ${robot})
-  _rosbuild_add_rostest_env(${file} ${robot})
-  if(CMAKE_MINOR_VERSION LESS 6)
-    add_custom_target(test)
-  endif(CMAKE_MINOR_VERSION LESS 6)
-  add_dependencies(test rostest_${_testname})
-  _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
-endmacro(rosbuild_add_rostest_env)
-macro(_rosbuild_add_rostest_env file robot)
-set(_file_name _file_name-NOTFOUND)
-find_file(_file_name ${file} ${PROJECT_SOURCE_DIR} /)
-if(NOT _file_name)
-message(FATAL_ERROR "Can't find rostest file \"${file}\"")
-  endif(NOT _file_name)
-  string(REPLACE "/" "_" _testname ${robot}ENV${file})
-  add_custom_target(rostest_${_testname}
-                    COMMAND export ROBOT=${robot} && ${ARGN} rostest ${file}
-                    DEPENDS ${file}
-                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                    VERBATIM)
-  if(NOT rosbuild_test_nobuild)
-    add_dependencies(rostest_${_testname} tests)
-  endif(NOT rosbuild_test_nobuild)
-endmacro(_rosbuild_add_rostest_env)
-
-
-
 macro(rosbuild_add_rostest_arg file)
 
   string(REPLACE "/" "_" _testname "${file}${ARGN}")
+  string(REPLACE ";" "_" _testname "${_testname}")
   string(REPLACE "=" "_" _testname "${_testname}")
+   string(REPLACE " " "_" _testname "${_testname}")
   string(REPLACE ":" "_" _testname "${_testname}")
   #set(_testname "${_testname}${ARGN}")
   #string(REPLACE "/" "_" _testname ${file})
@@ -47,7 +21,6 @@ macro(rosbuild_add_rostest_arg file)
   _rosbuild_check_rostest_result(rostest_${_testname} ${PROJECT_NAME} ${file})
 endmacro(rosbuild_add_rostest_arg)
 
-
 macro(_rosbuild_add_rostest_arg file)
 
   # Check that the file exists, #1621
@@ -61,11 +34,12 @@ macro(_rosbuild_add_rostest_arg file)
   string(REPLACE "/" "_" _testname "${file}${ARGN}")
   string(REPLACE "=" "_" _testname "${_testname}")
   string(REPLACE ":" "_" _testname "${_testname}")
+  string(REPLACE ";" "_" _testname "${_testname}")
   #set(_testname "${_testname}${ARGN}")
-  #MESSAGE("sub_testname: ${_testname}")
+  MESSAGE("sub_testname: ${_testname}")
   # Create target for this test
   add_custom_target(rostest_${_testname}
-                    COMMAND export ROBOT_ENV=ipa-kitchen && rostest ${file} ${ARGN}
+                    COMMAND  ${ARGN} && rostest ${file}
                     DEPENDS ${file}
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     VERBATIM)
@@ -133,7 +107,7 @@ MESSAGE("testing for robot: ${robot}")
 # rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
 # rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
 # rosbuild_add_rostest_sim(components/laser_front.test ${robot})
-rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot} )
+rosbuild_add_rostest_arg(robots/robot_auto_sim.test export ROBOT=${robot} && export ROBOT_ENV=ipa-kitchen )
 #rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
 #rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
 #rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})

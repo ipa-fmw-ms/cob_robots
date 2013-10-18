@@ -100,17 +100,19 @@ desire
 )
 
 
-
-# loop through list of robots for testing
-FOREACH(robot ${robotlist})
-MESSAGE("testing for robot: ${robot}")
-# rosbuild_add_roslaunch_check(robots/${robot}_manual.test.xml robot:=${robot})
-# rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
-# rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
-# rosbuild_add_rostest_sim(components/laser_front.test ${robot})
-rosbuild_add_rostest_arg(robots/robot_auto_sim.test export ROBOT=${robot} && export ROBOT_ENV=ipa-kitchen )
-#rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
-#rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
-#rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})
-# see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake
-ENDFOREACH(robot)
+rosbuild_check_for_display(disp)
+if(disp)
+  # loop through list of robots for testing
+  FOREACH(robot ${robotlist})
+  MESSAGE("testing for robot: ${robot}")
+  # rosbuild_add_roslaunch_check(robots/${robot}_manual.test.xml robot:=${robot})
+  # rosbuild_add_rostest(robots/robot_auto_sim.test robot:=${robot} robot_env:=ipa-apartment)
+  # rosbuild_add_roslaunch_check(robots/robot_auto_sim.test)
+  # rosbuild_add_rostest_sim(components/laser_front.test ${robot})
+  rosbuild_add_rostest_arg(robots/robot_auto_sim.test export ROBOT=${robot} && export ROBOT_ENV=ipa-kitchen )
+  #rosbuild_add_rostest_arg(robots/robot_auto_sim.test ROBOT:=${robot})
+  #rosbuild_add_rostest_env(robots/robot_auto_sim.test ${robot})
+  #rosbuild_add_rostest_sim(robots/robot_manual_sim.test ${robot})
+  # see macros in https://github.com/ros/ros/blob/groovy-devel/core/rosbuild/core/rosbuild/public.cmake
+  ENDFOREACH(robot)
+endif(disp)

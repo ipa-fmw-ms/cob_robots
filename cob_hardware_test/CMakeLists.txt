@@ -38,7 +38,7 @@ macro(_rosbuild_add_rostest_arg file)
   string(REPLACE ";" "_" _testname "${_testname}")
   string(REPLACE "&" "_" _testname "${_testname}")
   #set(_testname "${_testname}${ARGN}")
-  MESSAGE("sub_testname: ${_testname}")
+
   # Create target for this test
   add_custom_target(rostest_${_testname}
                     COMMAND  ${ARGN} && rostest ${file}

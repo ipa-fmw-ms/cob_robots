@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="$(arg robot)"/>
 	<!-- perform test -->
-	<test test-name="test_light" pkg="cob_hardware_test" type="light_test.py" name="cob_light" />
+	<test test-name="test_light_$(arg robot)" pkg="cob_hardware_test" type="light_test.py" name="cob_light" />
 
 </launch>

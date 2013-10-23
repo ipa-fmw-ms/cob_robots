@@ -11,8 +11,6 @@
 		<arg name="robot" value="$(arg robot)" />
 		<arg name="robot_env" value="$(arg robot_env)" />
 	</include>
-	<!-- include auto test -->
-	<include file="$(find cob_hardware_test)/robots/$(arg robot)_auto.test.xml" />
 	<!-- include manual test -->
 	<include file="$(find cob_hardware_test)/robots/$(arg robot)_manual.test.xml" />
 

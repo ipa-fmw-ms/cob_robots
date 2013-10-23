@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="$(arg robot)"/>
 	<!-- upload parameter -->
 	<include file="$(find cob_default_robot_config)/upload_param.launch" />
-    
+
     <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
       <param name="bitrate" value="128"/>
       <remap from="audio" to="audio_in" />
@@ -12,9 +13,9 @@
     <node name="audio_play" pkg="audio_play" type="audio_play" output="screen">
       <param name="dst" value="alsasink"/>
       <remap from="audio" to="audio_out" />
-    </node>    
-    
+</node>
+
 	<!-- perform test -->
-	<test test-name="test_say" pkg="cob_hardware_test" type="sound_test.py" name="cob_say" />
+	<test test-name="test_say_$(arg robot)" pkg="cob_hardware_test" type="sound_test.py" name="cob_say" />
 
 </launch>

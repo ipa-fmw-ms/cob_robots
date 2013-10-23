@@ -2,11 +2,13 @@
 <launch>
 
 	<arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+	<arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
 	<!--arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/-->
 	<!-- bringup robot -->
-	<include file="$(find cob_bringup_sim)/launch/robot.launch" />
-		<!--arg name="robot" value="$(arg robot)" />
-		<arg name="robot_env" value="$(arg robot_env)" /-->
+	<include file="$(find cob_bringup_sim)/launch/robot.launch" >
+		<arg name="robot" value="$(arg robot)" />
+		<arg name="robot_env" value="$(arg robot_env)" />
+	</include>
 	<!-- include auto test -->
 	<include file="$(find cob_hardware_test)/robots/$(arg robot)_auto.test.xml" />
 

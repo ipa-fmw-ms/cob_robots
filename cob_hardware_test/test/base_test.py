@@ -43,12 +43,15 @@ class HardwareTest(unittest.TestCase):
         self.sss.init("base")
         self.assertTrue(dialog_client(0, 'Ready to move base?' ))
         handle = self.sss.move_base_rel("base", [self.move_x, self.move_y, self.move_theta])
-        self.assertEqual(handle.get_state(), 3)
-        self.assertTrue(dialog_client(1, 'Did I move?'))
+        if (handle.get_state() != 3):
+                raise RuntimeError(handle.get_state())
+        if not (dialog_client(1, 'Did I move?')):
+                raise RuntimeError("User returned no Movement")
         self.assertTrue(dialog_client(0, 'EM Pressed and Released? \n Ready to move my Base ?' ))
         self.sss.recover("base")
         handle = self.sss.move_base_rel("base", [-self.move_x, -self.move_y, -self.move_theta])
-        self.assertTrue(dialog_client(1, 'Did I move back?'))
+        if not (dialog_client(1, 'Did I move back?')):
+                raise RuntimeError("No visible Movement")
 
 if __name__ == '__main__':
     # Copied from hztest: A dirty hack to work around an apparent race condition at startup

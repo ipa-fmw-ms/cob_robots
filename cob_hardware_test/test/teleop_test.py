@@ -41,7 +41,7 @@ class UnitTest(unittest.TestCase):
         while (not self.message_received) and time.time() < abort_time:
             time.sleep(0.1)          
         if not self.message_received:
-            self.fail('No valid state message received within 60 seconds')
+            raise RuntimeError('No valid state message received within 60 seconds')
 
     # callback functions
     def cb_state(self, msg):

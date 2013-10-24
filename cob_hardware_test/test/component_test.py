@@ -98,7 +98,7 @@ class UnitTest(unittest.TestCase):
     def execute_movement(self):
         # test_target: send commands to component 
         move_handle = self.sss.move(self.component, self.test_target)
-        self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
+        #self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
         if move_handle.get_error_code() != 0:
             error_msg = 'Could not move ' + self.component
             raise RuntimeError(error_msg + "; errorCode: " + str(move_handle.get_error_code()))

@@ -26,17 +26,21 @@ class HardwareTest(unittest.TestCase):
         dialog_client(0, 'Listen up for the sound' )
         rospy.set_param("script_server/sound/language","de")
         handle = self.sss.play("grasp_tutorial_01")
-        self.assertEqual(handle.get_state(), 3)
-        self.assertTrue(dialog_client(1, 'Did you hear some audio file?'))
+        if handl.get_error_code() != 0:
+            error_msg = 'Could not play file'
+            raise RuntimeError(error_msg + "; errorCode: " + str(handle_light.get_error_code()))
+        if not (dialog_client(1, 'Did you hear some audio file?')):
+            raise RuntimeError("User returned no Audio")
         
     def test_say(self):
         dialog_client(0, 'Listen up for the sound' )
         handle = self.sss.say(["Hello"])
-        self.assertEqual(handle.get_state(), 3)
+        #self.assertEqual(handle.get_state(), 3)
         if handle.get_error_code() != 0:
-            error_msg = 'Could say something'
-            self.fail(error_msg + "; errorCode: " + str(handle.get_error_code()))
-        self.assertTrue(dialog_client(1, 'Did you hear <<Hello>>?'))
+            error_msg = 'Could not say something'
+            raise RuntimeError(error_msg + "; errorCode: " + str(handle.get_error_code()))
+        if not (dialog_client(1, 'Did you hear Hello?')):
+            raise RuntimeError("User returned no Audio")
                 
     def test_record(self):
         
@@ -51,7 +55,8 @@ class HardwareTest(unittest.TestCase):
             pub.publish(Data)
             r.sleep()
         
-        self.assertTrue(dialog_client(1, 'Did you hear your record?' ))
+        if not (dialog_client(1, 'Did you hear your record?' )):
+            raise RuntimeError("User returned no Record")
         
         
     def callback(self, Data):

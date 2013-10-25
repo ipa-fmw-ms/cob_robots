@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- bringup robot -->
-	<include file="$(find cob_bringup_sim)/launch/robot.launch" />
-
 	<!-- load testparameter-->
 	<!-- lower robot -->
 	<rosparam ns="cob_hardware_test" file="$(find cob_hardware_test)/components/laser_front.yaml" command="load"/>

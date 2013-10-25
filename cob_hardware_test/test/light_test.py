@@ -28,14 +28,15 @@ class HardwareTest(unittest.TestCase):
         self.change_light("blue")
         rospy.sleep(3.0)
         self.change_light("black")
-        self.assertTrue(dialog_client(1, 'Did I light up in red, green and blue?'))
+        if not (dialog_client(1, 'Did I light up in red, green and blue?')):
+            raise RuntimeError("User returned no visible light")
 
     def change_light(self,color):
         handle_light = self.sss.set_light(color)
-        self.assertEqual(handle_light.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
+        #self.assertEqual(handle_light.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
         if handle_light.get_error_code() != 0:
             error_msg = 'Could not set lights'
-            self.fail(error_msg + "; errorCode: " + str(handle_light.get_error_code()))
+            raise RuntimeError(error_msg + "; errorCode: " + str(handle_light.get_error_code()))
 
 
 if __name__ == '__main__':

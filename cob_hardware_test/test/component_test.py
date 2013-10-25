@@ -78,7 +78,7 @@ class UnitTest(unittest.TestCase):
             rospy.sleep(0.1)
                         
         if not self.message_received:
-            self.fail('No state message received within wait_time(%s) from /%s_controller/state' % (self.wait_time, self.component))
+            raise RuntimeError('No state message received within wait_time(%s) from /%s_controller/state' % (self.wait_time, self.component))
 
         self.assertTrue(dialog_client(0, 'Ready to move <<%s>> to \n <<%s>> and <<%s>>?' % (self.component, self.test_target, self.default_target)))
 
@@ -90,7 +90,7 @@ class UnitTest(unittest.TestCase):
         recover_handle = self.sss.recover(self.component)
         if recover_handle.get_error_code() != 0 :
            error_msg = 'Could not recover ' + self.component
-           self.fail(error_msg)
+           raise RuntimeError(error_msg)
 
         # execute movement to test_target and back to default_target
         self.execute_movement()
@@ -98,18 +98,18 @@ class UnitTest(unittest.TestCase):
     def execute_movement(self):
         # test_target: send commands to component 
         move_handle = self.sss.move(self.component, self.test_target)
-        self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
+        #self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
         if move_handle.get_error_code() != 0:
             error_msg = 'Could not move ' + self.component
-            self.fail(error_msg + "; errorCode: " + str(move_handle.get_error_code()))
+            raise RuntimeError(error_msg + "; errorCode: " + str(move_handle.get_error_code()))
         self.check_target_reached(self.test_target)
 
         # default_target: send commands to component 
         move_handle = self.sss.move(self.component, self.default_target)
-        self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
+        #self.assertEqual(move_handle.get_state(), 3) # state 3 equals errorcode 0 therefore the following will never be executed
         if move_handle.get_error_code() != 0:
             error_msg = 'Could not move ' + self.component
-            self.fail(error_msg + "; errorCode: " + str(move_handle.get_error_code()))
+            raise RuntimeError(error_msg + "; errorCode: " + str(move_handle.get_error_code()))
         self.check_target_reached(self.default_target)
 
     def check_target_reached(self,target):
@@ -127,9 +127,11 @@ class UnitTest(unittest.TestCase):
         print "actual_pos = ", actual_pos
         print "traj_endpoint = ", traj_endpoint
         for i in range(len(traj_endpoint)):
-            self.assert_(((math.fabs(traj_endpoint[i] - actual_pos[i])) < self.error_range), "Target position out of error_range")
+            if not ((math.fabs(traj_endpoint[i] - actual_pos[i])) < self.error_range):
+                raise RuntimeError("Target position out of error_range")
 
-        self.assertTrue(dialog_client(1, 'Did <<%s>> reach <<%s>>?' % (self.component, target)))
+        if not (dialog_client(1, 'Did <<%s>> reach <<%s>>?' % (self.component, target))):
+            raise RuntimeError("User returned bad movement")
 
     # callback functions
     def cb_state(self, msg):

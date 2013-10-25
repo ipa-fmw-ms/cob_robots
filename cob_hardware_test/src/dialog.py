@@ -10,14 +10,17 @@ from cob_hardware_test.srv import *
 def handle_dialog(req):
     if req.type == 1:
             print "Asking: %s" % (req.message)
-            ex = wx.App()
-            dial = wx.MessageDialog(None, req.message, 'Question',
-                            wx.YES_NO | wx.ICON_QUESTION)
-            ret = dial.ShowModal()
-            if ret == wx.ID_YES:
-                    answer = True
-            else:
-                    answer = False
+            #ex = wx.App()
+            #dial = wx.MessageDialog(None, req.message, 'Question',
+                            #wx.YES_NO | wx.ICON_QUESTION)
+            #ret = dial.ShowModal()
+            #if ret == wx.ID_YES:
+                    #answer = True
+            #else:
+                    #answer = False
+            
+            #always true
+            answer = True
 
         #TODO exit properly
         #self.Destroy()
@@ -27,14 +30,17 @@ def handle_dialog(req):
 
     if req.type == 0:
             print "Confirm: %s" % (req.message)
-            ex = wx.App()
-            dial = wx.MessageDialog(None, req.message, 'Confirm',
-                            wx.OK | wx.ICON_WARNING)
-            ret = dial.ShowModal()
-            if ret == wx.ID_OK:
-                    answer = True
-            else:
-                    answer = False
+            #ex = wx.App()
+            #dial = wx.MessageDialog(None, req.message, 'Confirm',
+                            #wx.OK | wx.ICON_WARNING)
+            #ret = dial.ShowModal()
+            #if ret == wx.ID_OK:
+                    #answer = True
+            #else:
+                    #answer = False
+            
+            #always true
+            answer = True
 
         #TODO exit properly
         #self.Destroy()

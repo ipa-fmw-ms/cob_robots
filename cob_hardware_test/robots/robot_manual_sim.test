@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+	<arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
+
+	<!-- start dialog service -->
+	<node pkg="cob_hardware_test" type="dialog.py" name="dialog_server"/>
+	<!-- bringup robot -->
+	<include file="$(find cob_bringup_sim)/launch/robot.launch" >
+		<arg name="robot" value="$(arg robot)" />
+		<arg name="robot_env" value="$(arg robot_env)" />
+	</include>
+	<!-- include manual test -->
+	<include file="$(find cob_hardware_test)/robots/$(arg robot)_manual.test.xml" />
+
+</launch>

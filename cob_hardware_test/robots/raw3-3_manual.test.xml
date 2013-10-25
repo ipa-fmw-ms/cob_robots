@@ -2,8 +2,14 @@
 <launch>
 
 	<!-- include manual tests -->
-	<include file="$(find cob_hardware_test)/components/base.test.xml" />
-	<include file="$(find cob_hardware_test)/components/joy.test.xml" />   
-	<include file="$(find cob_hardware_test)/components/teleop.test.xml" />
+	<include file="$(find cob_hardware_test)/components/base.test.xml" >
+		<arg name="robot" value="raw3-3" />
+	</include>
+	<include file="$(find cob_hardware_test)/components/joy.test.xml" >
+		<arg name="robot" value="raw3-3" />
+	</include>
+	<include file="$(find cob_hardware_test)/components/teleop.test.xml" >
+		<arg name="robot" value="raw3-3" />
+	</include>
 
 </launch>

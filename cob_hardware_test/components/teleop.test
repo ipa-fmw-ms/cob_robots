@@ -1,12 +1,21 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+	<arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
+
 	<!-- start dialog service -->
 	<node pkg="cob_hardware_test" type="dialog.py" name="dialog_server"/>
 	<!-- launch component or simulation-->
-	<include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" />
-	<include file="$(find cob_bringup)/tools/teleop.launch" unless="$(arg sim)" />
+	<include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+		<arg name="robot_env" value="$(arg robot_env)" />
+	</include>
+	<include file="$(find cob_bringup)/tools/teleop.launch" unless="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 	<!-- include test -->
-	<include file="$(find cob_hardware_test)/components/teleop.test.xml" />
-
+	<include file="$(find cob_hardware_test)/components/teleop.test.xml" >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 </launch>

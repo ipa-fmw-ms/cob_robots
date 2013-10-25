@@ -1,9 +1,17 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+	<arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
+
 	<!-- launch component or simulation-->
-	<include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" />
-	<include file="$(find cob_bringup)/components/laser_front.launch" unless="$(arg sim)" />
+	<include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+		<arg name="robot_env" value="$(arg robot_env)" />
+	</include>
+	<include file="$(find cob_bringup)/components/laser_front.launch" unless="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 	<!-- upload testparameter -->
 	<rosparam ns="cob_hardware_test" file="$(find cob_hardware_test)/components/laser_front.yaml" command="load"/>
 	<!-- perform test -->

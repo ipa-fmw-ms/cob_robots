@@ -1,13 +1,23 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+	<arg name="robot_env" default="$(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
+
 	<!-- start dialog service -->
 	<!--node pkg="cob_hardware_test" type="dialog.py" name="dialog_server" /-->
-	<!-- launch robot (on real $ROBOT)-->
-	<include file="$(find cob_bringup)/robot.launch" />
+	<include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+		<arg name="robot_env" value="$(arg robot_env)" />
+	</include>
+	<include file="$(find cob_bringup)/robot.launch" unless="$(arg sim)" >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 	<!-- open rviz with configuration -->
 	<!--node pkg="rviz" type="rviz" name="$(anon rviz)" respawn="false" output="screen" args="-d $(find cob_hardware_test)/config/calibration.rviz" /-->
 	<!-- include test -->
-	<include file="$(find cob_hardware_test)/components/calibration.test.xml" />
+	<include file="$(find cob_hardware_test)/components/calibration.test.xml" >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 
 </launch>

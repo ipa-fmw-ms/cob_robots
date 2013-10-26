@@ -46,7 +46,7 @@ class UnitTest(unittest.TestCase):
     # callback functions
     def cb_state(self, msg):
         self.actual_value = msg
-        if (self.actual_value.linear.x > self.min_target_x) and (self.actual_value.linear.y > self.min_target_y):
+        if (self.actual_value.linear.x > self.min_target_x): #and (self.actual_value.linear.y > self.min_target_y):
             self.message_received = True
 
 

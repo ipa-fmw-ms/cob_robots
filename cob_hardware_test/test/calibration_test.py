@@ -58,8 +58,7 @@ class UnitTest(unittest.TestCase):
         self.sss.move('torso', self.test_target_torso)
         self.sss.move('head', self.test_target_head)        
         
-        if not (dialog_client(1, 'now check rviz. Is the calibration good?')):
-                raise RuntimeError("User returned bad calibration")
+        self.assertTrue(dialog_client(1, ' now check rviz. Is the calibration good?'))
 
 
 

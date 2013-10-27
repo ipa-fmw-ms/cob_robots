@@ -117,9 +117,7 @@ class HzTest(unittest.TestCase):
             t.join()        
                        
         print 'THREADS: %s ERRORS: %s' % (len(threads), len(self.verificationErrors))         
-        #self.assertListEqual([], self.verificationErrors)
-        if self.verificationErrors:
-            raise RuntimeError(self.verificationErrors)
+        self.assertEqual([], self.verificationErrors)          
         
     def _test_hz(self, test_name, topic, hz, hzerror, test_duration, wait_time):
     

@@ -37,6 +37,6 @@ desire
 
 # loop through list of robots for testing
 FOREACH(robot ${robotlist})
-	MESSAGE("NOTtesting for robot: ${robot}")
-	#rosbuild_add_roslaunch_check(${robot}/upload_param_${robot}.launch)
+	MESSAGE("testing for robot: ${robot}")
+	rosbuild_add_roslaunch_check(${robot}/upload_param_${robot}.launch)
 ENDFOREACH(robot)

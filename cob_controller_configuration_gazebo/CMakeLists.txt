@@ -37,6 +37,6 @@ desire
 
 # loop through list of robots for testing
 FOREACH(robot ${robotlist})
-	MESSAGE("NOTtesting for robot: ${robot}")
-	#rosbuild_add_roslaunch_check(ros/launch/default_controllers_${robot}.launch robot:=${robot})
+	MESSAGE("testing for robot: ${robot}")
+	rosbuild_add_roslaunch_check(ros/launch/default_controllers_${robot}.launch robot:=${robot})
 ENDFOREACH(robot)

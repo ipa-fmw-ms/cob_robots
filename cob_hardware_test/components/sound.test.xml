@@ -16,6 +16,6 @@
 </node>
 
 	<!-- perform test -->
-	<test test-name="test_say_$(arg robot)" pkg="cob_hardware_test" type="sound_test.py" name="cob_say" />
+	<test test-name="test_say_$(arg robot)" pkg="cob_hardware_test" type="sound_test.py" name="cob_say" time-limit="50.0"/>
 
 </launch>

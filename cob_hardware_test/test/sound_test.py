@@ -44,7 +44,8 @@ class HardwareTest(unittest.TestCase):
         sub = rospy.Subscriber("/audio_in", AudioData, self.callback)
         pub = rospy.Publisher("/audio_out", AudioData)
         rospy.sleep(4.0)
-        dialog_client(0, 'Done recording, listen up')        
+        dialog_client(0, 'Done recording, listen up')
+        #self.assertTrue(self.record) #TODO better recording
         r = rospy.Rate(len(self.record)/4.0)
         
         for Data in self.record:
